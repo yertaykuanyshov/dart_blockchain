@@ -1,7 +1,7 @@
 import 'package:dart_blockchain/services/hash_calculator.dart';
 import 'package:dart_blockchain/services/json_service.dart';
 
-import 'models/bloc.dart';
+import '../models/bloc.dart';
 
 class Blockchain {
   Blockchain(
@@ -12,8 +12,7 @@ class Blockchain {
   final HashCalculator _hashCalculator;
   final BlockchainJsonService _blockchainJsonService;
 
-  void addBloc(String text) async {
-
+  void add(String text) async {
     var bloc = Bloc(
       text: text,
       date: DateTime.now(),
