@@ -67,12 +67,14 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
   /// Get last bloc hash. If first block return empty;
 
   Future<String> getLastBlocHash() async {
-    try {
-      final addedBlocs = await _blockchainJsonService.read();
-      final lastBloc = addedBlocs.last;
-      return _hashCalculator.calculate(lastBloc.toString());
-    } catch (e) {
+    final addedBlocs = await _blockchainJsonService.read();
+
+    if (addedBlocs.isEmpty) {
       return "";
     }
+
+    final lastBloc = addedBlocs.last;
+
+    return _hashCalculator.calculate(lastBloc.toString());
   }
 }
