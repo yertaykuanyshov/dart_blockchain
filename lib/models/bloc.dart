@@ -16,7 +16,7 @@ class Bloc {
       text: data["text"],
       hash: data["hash"],
       prevHash: data["prevHash"],
-      date: DateTime.now(),
+      date: DateTime.parse(data["date"]),
     );
   }
 
@@ -26,7 +26,7 @@ class Bloc {
       "text": text,
       "hash": hash,
       "prevHash": prevHash,
-      "date": date.toLocal().toIso8601String(),
+      "date": date,
     }.toString();
   }
 

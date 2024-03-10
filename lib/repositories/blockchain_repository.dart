@@ -3,8 +3,14 @@ import 'package:dart_blockchain/services/json_service.dart';
 
 import '../models/bloc.dart';
 
-class Blockchain {
-  Blockchain(
+abstract class BlockchainRepository {
+  Future<void> addBloc(String text);
+
+  Future<void> validateChain();
+}
+
+class BlockchainRepositoryImpl implements BlockchainRepository {
+  BlockchainRepositoryImpl(
     this._hashCalculator,
     this._blockchainJsonService,
   );
@@ -12,14 +18,22 @@ class Blockchain {
   final HashCalculator _hashCalculator;
   final BlockchainJsonService _blockchainJsonService;
 
-  void add(String text) async {
+  @override
+  Future<void> addBloc(String text) async {
+    try {
+      addToBlockchain(text);
+    } catch (e) {
+      print("Error adding new bloc: $e");
+    }
+  }
+
+  Future<void> addToBlockchain(String text) async {
     var bloc = Bloc(
       text: text,
       date: DateTime.now(),
     );
 
     final currentBlocHash = _hashCalculator.calculate(bloc.toString());
-
     final lastBlocHash = await getLastBlocHash();
 
     bloc = bloc.copyFrom(
@@ -27,8 +41,30 @@ class Blockchain {
       prevHash: lastBlocHash,
     );
 
-    _blockchainJsonService.write(bloc);
+    await _blockchainJsonService.write(bloc);
   }
+
+  @override
+  Future<void> validateChain() async {
+    final allBlocs = await _blockchainJsonService.read();
+
+    allBlocs.asMap().forEach((idx, bloc) {
+      bool isNotFirstBloc = idx != 0;
+
+      if (isNotFirstBloc) {
+        final prevBloc = allBlocs[idx - 1];
+        final prevBlocHash = _hashCalculator.calculate(prevBloc.toString());
+        final currentBlocPrevHash = allBlocs[idx].prevHash;
+
+        if (currentBlocPrevHash != prevBlocHash) {
+          print("Chain: $idx not valid");
+          return;
+        }
+      }
+    });
+  }
+
+  /// Get last bloc hash. If first block return empty;
 
   Future<String> getLastBlocHash() async {
     try {
@@ -39,6 +75,4 @@ class Blockchain {
       return "";
     }
   }
-
-  Future<void> mining() async {}
 }

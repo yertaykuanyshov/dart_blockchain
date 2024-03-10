@@ -10,10 +10,10 @@ abstract class BlockchainJsonService {
 }
 
 class BlockchainJsonServiceImpl implements BlockchainJsonService {
+  final _file = File("bloc.json");
+
   @override
   Future<void> write(Bloc bloc) async {
-    final File blocListFile = File("bloc.json");
-
     final List<Bloc> addedBlocs = await read();
     addedBlocs.add(bloc);
 
@@ -21,13 +21,12 @@ class BlockchainJsonServiceImpl implements BlockchainJsonService {
 
     final blockData = jsonEncode(jsonData);
 
-    blocListFile.writeAsString(blockData);
+    _file.writeAsString(blockData);
   }
 
   @override
   Future<List<Bloc>> read() async {
-    final File blocListFile = File("bloc.json");
-    final String data = await blocListFile.readAsString();
+    final String data = await _file.readAsString();
 
     if (data.isEmpty) {
       return [];
